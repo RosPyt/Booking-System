@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="el">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{{ business }} | Online κράτηση ραντεβού</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="shell">
+  <aside class="brand">
+    <h1>{{ business }}</h1>
+    <p class="lead">Online κράτηση ραντεβού</p>
+    <dl class="sum">
+      <div><dt>Κατηγορία</dt><dd id="s-cat">–</dd></div>
+      <div><dt>Υπηρεσία</dt><dd id="s-svc">–</dd></div>
+      <div><dt>Ημερομηνία</dt><dd id="s-date">–</dd></div>
+      <div><dt>Ώρα</dt><dd id="s-time">–</dd></div>
+      <div><dt>Διάρκεια</dt><dd id="s-dur">–</dd></div>
+      <div class="total"><dt>Κόστος</dt><dd id="s-price">–</dd></div>
+    </dl>
+    <p class="hours">Ωράριο λειτουργίας: {{ open_h }}:00 – {{ close_h }}:00</p>
+  </aside>
+
+  <main class="flow">
+    <noscript><div class="msg err">Η κράτηση απαιτεί ενεργοποιημένη JavaScript.</div></noscript>
+
+    <section class="panel">
+      <h2>Γρήγορη κράτηση</h2>
+      <label for="ask">Περιγράψτε το αίτημά σας και θα συμπληρώσουμε τη φόρμα</label>
+      <div class="row">
+        <input id="ask" maxlength="300" placeholder="Π.χ. Κούρεμα και γένια την Πέμπτη το απόγευμα">
+        <button id="askbtn" type="button">Αυτόματη συμπλήρωση</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2><span class="n">1</span>Επιλογή υπηρεσίας</h2>
+      <div class="seg" role="group" aria-label="Κατηγορία">
+        {% for c in cats %}<button type="button" data-cat="{{ c.key }}">{{ c.label }}</button>{% endfor %}
+      </div>
+      <div class="svc" id="svc">
+        {% for s in services %}
+        <button type="button" data-cat="{{ s.category }}" data-id="{{ s.id }}" data-min="{{ s.minutes }}"
+                data-price="{{ '%g' % s.price }}" data-name="{{ s.name }}">{{ s.name }}<span>{{ s.minutes }} λεπτά</span><b>{{ '%g' % s.price }} €</b></button>
+        {% else %}
+        <p class="hint">Δεν υπάρχουν διαθέσιμες υπηρεσίες αυτή τη στιγμή.</p>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2><span class="n">2</span>Ημερομηνία και ώρα</h2>
+      <label for="date">Ημερομηνία</label>
+      <input type="date" id="date" class="narrow" min="{{ today }}" max="{{ max_date }}">
+      <div id="slots" aria-live="polite"><span class="hint">Επιλέξτε ημερομηνία για να δείτε τη διαθεσιμότητα.</span></div>
+    </section>
+
+    <section class="panel">
+      <h2><span class="n">3</span>Στοιχεία επικοινωνίας</h2>
+      <div class="row">
+        <div><label for="name">Ονοματεπώνυμο</label><input id="name" maxlength="60" autocomplete="name"></div>
+        <div><label for="phone">Τηλέφωνο</label><input id="phone" inputmode="tel" maxlength="15" autocomplete="tel"></div>
+      </div>
+      <p><button class="primary" id="book" type="button">Επιβεβαίωση κράτησης</button></p>
+      <div class="msg" id="msg" role="status"></div>
+    </section>
+
+    <p class="hint foot"><a href="/admin">Πρόσβαση διαχειριστή</a></p>
+  </main>
+</div>
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,5 @@
+flask>=3.0.3,<4
+python-dotenv>=1.0.1,<2
+gunicorn>=23.0.0
+tzdata
+anthropic>=0.40.0

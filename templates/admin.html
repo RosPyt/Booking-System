@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="el">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Διαχείριση | {{ business }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="admin">
+{% if login %}
+  <div class="login">
+    <h1>{{ business }}<small>Πρόσβαση διαχειριστή</small></h1>
+    <form method="post" class="panel">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label for="pw">Κωδικός πρόσβασης</label>
+      <input id="pw" type="password" name="password" autocomplete="current-password" autofocus>
+      {% if error %}<div class="msg err">{{ error }}</div>{% endif %}
+      <p><button class="primary">Σύνδεση</button></p>
+    </form>
+    <p class="hint foot"><a href="/">Επιστροφή στη σελίδα κρατήσεων</a></p>
+  </div>
+{% else %}
+  <div class="top">
+    <h1>Πίνακας διαχείρισης</h1>
+    <form method="post" action="/admin/logout">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button>Αποσύνδεση</button>
+    </form>
+  </div>
+  {% if default_pw %}<div class="warn">Χρησιμοποιείται προεπιλεγμένος κωδικός πρόσβασης. Ορίστε τον δικό σας μέσω της ρύθμισης <code>ADMIN_PASSWORD</code>.</div>{% endif %}
+  {% if error %}<div class="msg err">{{ error }}</div>{% endif %}
+
+  <section class="panel scroll">
+    <h2 class="plain">Επερχόμενες κρατήσεις</h2>
+    {% if bookings %}
+    <table>
+      <tr><th>Ημερομηνία</th><th>Ώρα</th><th>Πελάτης</th><th>Υπηρεσία</th><th></th></tr>
+      {% for b in bookings %}
+      <tr>
+        <td>{{ b.date }}</td>
+        <td>{{ b.start|hm }} – {{ (b.start + b.minutes)|hm }}</td>
+        <td>{{ b.name }}<br><a href="tel:{{ b.phone }}">{{ b.phone }}</a></td>
+        <td>{{ b.sname }}</td>
+        <td>
+          <form method="post" action="/admin/cancel/{{ b.id }}" data-confirm="Να ακυρωθεί η κράτηση;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="danger">Ακύρωση</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% else %}<p class="hint">Δεν υπάρχουν επερχόμενες κρατήσεις.</p>{% endif %}
+  </section>
+
+  <section class="panel scroll">
+    <h2 class="plain">Υπηρεσίες</h2>
+    <table>
+      <tr><th>Κατηγορία</th><th>Όνομα</th><th>Διάρκεια</th><th>Τιμή</th><th></th></tr>
+      {% for s in services %}
+      <tr>
+        <td>{{ 'Ανδρικό' if s.category == 'men' else 'Γυναικείο' }}</td>
+        <td>{{ s.name }}</td>
+        <td>{{ s.minutes }} λεπτά</td>
+        <td>{{ '%g' % s.price }} €</td>
+        <td>
+          <form method="post" action="/admin/service/{{ s.id }}/delete" data-confirm="Να διαγραφεί η υπηρεσία;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="danger">Διαγραφή</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+    <form method="post" action="/admin/service" class="row add-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div><label for="c">Κατηγορία</label>
+        <select id="c" name="category"><option value="men">Ανδρικό</option><option value="women">Γυναικείο</option></select></div>
+      <div><label for="n">Νέα υπηρεσία</label><input id="n" name="name" maxlength="60" required></div>
+      <div><label for="m">Διάρκεια (λεπτά)</label><input id="m" name="minutes" type="number" step="15" min="15" max="480" required></div>
+      <div><label for="p">Τιμή (€)</label><input id="p" name="price" type="number" step="0.5" min="0" required></div>
+      <button class="primary">Προσθήκη</button>
+    </form>
+  </section>
+  <p class="hint foot"><a href="/">Σελίδα κρατήσεων</a></p>
+  <script src="{{ url_for('static', filename='admin.js') }}"></script>
+{% endif %}
+</div>
+</body>
+</html>
